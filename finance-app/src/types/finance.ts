@@ -1,5 +1,5 @@
-/** The three time-window views the dashboard supports. */
-export type TimeWindow = 'day' | '7d' | 'quarter'
+/** The time-window views the dashboard supports. */
+export type TimeWindow = 'day' | '7d' | 'month' | 'quarter'
 
 /** A single company that appears in the dashboard. */
 export interface Company {

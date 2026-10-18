@@ -54,6 +54,11 @@ describe('focusedSymbol slice', () => {
     useDashboardStore.getState().setFocusedSymbol('TSLA')
     expect(useDashboardStore.getState().selectedWindow).toBe('quarter')
   })
+
+  it('setWindow updates selectedWindow to month', () => {
+    useDashboardStore.getState().setWindow('month')
+    expect(useDashboardStore.getState().selectedWindow).toBe('month')
+  })
 })
 
 // ---------------------------------------------------------------------------

@@ -2,7 +2,7 @@
  * dashboardStore.ts
  *
  * Zustand store for synchronous UI state.
- * - selectedWindow: which time-window tab is active ('day' | '7d' | 'quarter')
+ * - selectedWindow: which time-window tab is active ('day' | '7d' | 'month' | 'quarter')
  * - companies: the list of companies shown in the dashboard
  * - dataSource: 'live' (real Yahoo Finance market data) or 'mock' (offline fixture data)
  *

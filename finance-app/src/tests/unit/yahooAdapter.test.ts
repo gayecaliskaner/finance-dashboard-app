@@ -65,6 +65,22 @@ describe('yahooAdapter', () => {
     expect(history[1]).toEqual({ date: '2024-10-02', close: 182.5 })
   })
 
+  it('fetches chart history for month window', async () => {
+    mockChart.mockResolvedValueOnce({
+      quotes: [
+        { date: '2024-09-08', close: 170.0 },
+        { date: '2024-10-07', close: 182.5 },
+      ],
+    })
+
+    const history = await yahooProvider.fetchHistory('IBM', 'month')
+    expect(history).toHaveLength(2)
+    expect(mockChart).toHaveBeenCalledWith(
+      'IBM',
+      expect.objectContaining({ interval: '1d' }),
+    )
+  })
+
   it('handles not found 404 errors as kind "not_found"', async () => {
     mockQuoteSummary.mockRejectedValueOnce(new Error('404 Not Found'))
     mockChart.mockRejectedValueOnce(new Error('404 Not Found'))

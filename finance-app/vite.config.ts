@@ -52,6 +52,9 @@ function yahooFinanceApiPlugin(): Plugin {
         if (windowParam === 'day') {
           period1 = new Date(now - 24 * 60 * 60 * 1000)
           interval = '5m'
+        } else if (windowParam === 'month') {
+          period1 = new Date(now - 30 * 24 * 60 * 60 * 1000)
+          interval = '1d'
         } else if (windowParam === 'quarter') {
           period1 = new Date(now - 90 * 24 * 60 * 60 * 1000)
           interval = '1d'
