@@ -5,7 +5,7 @@
  * Covers IBM and its key enterprise/cloud competitors.
  */
 
-import type { HistoryPoint, Quote } from '../types/finance'
+import type { HistoryPoint, IntradayPoint, Quote } from '../types/finance'
 
 // ---------------------------------------------------------------------------
 // Current-day quotes
@@ -239,4 +239,71 @@ export const MOCK_HISTORY: Record<string, HistoryPoint[]> = {
   ACN: acnHistory,
   HPE: hpeHistory,
   NVDA: nvdaHistory,
+}
+
+// ---------------------------------------------------------------------------
+// Intraday series (5-minute intervals for the most recent trading session)
+// ---------------------------------------------------------------------------
+
+function makeIntraday(
+  date: string,
+  _open: number,
+  points: number[],
+): IntradayPoint[] {
+  // Market opens at 09:30, each step is 5 minutes
+  return points.map((close, i) => {
+    const totalMinutes = 9 * 60 + 30 + i * 5
+    const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const mm = String(totalMinutes % 60).padStart(2, '0')
+    return { date: `${date}T${hh}:${mm}:00`, close }
+  })
+}
+
+const LAST_TRADING_DATE = '2024-10-07'
+
+export const MOCK_INTRADAY: Record<string, IntradayPoint[]> = {
+  IBM: makeIntraday(LAST_TRADING_DATE, 180.1, [
+    180.1, 180.5, 180.8, 181.0, 181.3, 181.0, 180.9, 181.2, 181.5, 181.8,
+    182.0, 181.9, 182.1, 182.3, 182.0, 181.8, 182.1, 182.3, 182.5, 182.34,
+  ]),
+  MSFT: makeIntraday(LAST_TRADING_DATE, 415.0, [
+    415.0, 416.0, 416.5, 417.0, 417.5, 418.0, 418.5, 419.0, 419.5, 420.0,
+    420.2, 420.0, 419.8, 420.1, 420.3, 420.5, 420.3, 420.4, 420.5, 420.55,
+  ]),
+  NVDA: makeIntraday(LAST_TRADING_DATE, 862.0, [
+    862.0, 864.0, 866.0, 867.5, 869.0, 870.5, 871.0, 870.0, 869.5, 871.0,
+    872.5, 873.0, 872.0, 873.5, 874.0, 874.5, 874.0, 874.8, 875.0, 875.4,
+  ]),
+  ORCL: makeIntraday(LAST_TRADING_DATE, 163.0, [
+    163.0, 163.5, 164.0, 164.3, 164.5, 164.8, 165.0, 164.8, 164.9, 165.1,
+    165.2, 165.0, 165.1, 165.2, 165.1, 165.0, 165.2, 165.3, 165.2, 165.2,
+  ]),
+  SAP: makeIntraday(LAST_TRADING_DATE, 200.1, [
+    200.1, 199.8, 199.5, 199.2, 199.0, 198.8, 198.6, 198.5, 198.7, 198.9,
+    199.0, 198.8, 198.7, 198.6, 198.5, 198.7, 198.8, 198.7, 198.7, 198.7,
+  ]),
+  CRM: makeIntraday(LAST_TRADING_DATE, 268.5, [
+    268.5, 269.0, 269.5, 270.0, 270.3, 270.5, 270.8, 271.0, 270.8, 270.5,
+    270.6, 270.8, 271.0, 271.2, 271.0, 270.8, 270.9, 271.0, 270.9, 270.88,
+  ]),
+  GOOGL: makeIntraday(LAST_TRADING_DATE, 166.2, [
+    166.2, 166.5, 167.0, 167.3, 167.5, 167.8, 168.0, 168.2, 168.3, 168.4,
+    168.5, 168.4, 168.3, 168.4, 168.5, 168.4, 168.4, 168.4, 168.4, 168.42,
+  ]),
+  AMZN: makeIntraday(LAST_TRADING_DATE, 182.8, [
+    182.8, 183.0, 183.5, 184.0, 184.3, 184.5, 184.8, 185.0, 185.1, 185.0,
+    184.9, 185.0, 185.1, 185.2, 185.1, 185.0, 185.1, 185.1, 185.1, 185.12,
+  ]),
+  CSCO: makeIntraday(LAST_TRADING_DATE, 52.1, [
+    52.1, 52.2, 52.3, 52.3, 52.4, 52.3, 52.4, 52.4, 52.4, 52.4,
+    52.4, 52.4, 52.4, 52.4, 52.4, 52.4, 52.4, 52.4, 52.4, 52.4,
+  ]),
+  ACN: makeIntraday(LAST_TRADING_DATE, 348.0, [
+    348.0, 348.5, 349.0, 349.5, 350.0, 350.1, 350.2, 350.3, 350.2, 350.1,
+    350.2, 350.3, 350.2, 350.2, 350.3, 350.2, 350.2, 350.3, 350.2, 350.25,
+  ]),
+  HPE: makeIntraday(LAST_TRADING_DATE, 18.6, [
+    18.6, 18.65, 18.7, 18.75, 18.8, 18.85, 18.9, 18.92, 18.94, 18.95,
+    18.95, 18.94, 18.95, 18.95, 18.95, 18.95, 18.95, 18.95, 18.95, 18.95,
+  ]),
 }

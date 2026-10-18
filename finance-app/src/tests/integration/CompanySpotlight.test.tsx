@@ -63,16 +63,13 @@ describe('CompanySearchPanel', () => {
 })
 
 describe('FocusedCompanyChart — success path', () => {
-  it('renders the symbol heading after the store is set to a known symbol', async () => {
-    // Switch to 7d so history is fetched (day window shows a guidance message instead)
+  it('renders the symbol heading after the store is set to a known symbol (7d)', async () => {
     useDashboardStore.setState({ selectedWindow: '7d', focusedSymbol: 'NVDA' })
 
     await act(async () => { renderWithSWR(<DashboardPage provider={mockProvider} />) })
 
-    // The spotlight section heading should appear with the ticker
     const spotlight = screen.getByRole('region', { name: /company spotlight/i })
     expect(within(spotlight).getAllByText('NVDA').length).toBeGreaterThan(0)
-    // No error notice inside spotlight section
     expect(within(spotlight).queryByText(/not found/i)).not.toBeInTheDocument()
   })
 })
@@ -99,15 +96,68 @@ describe('FocusedCompanyChart — error path', () => {
   })
 })
 
-describe('FocusedCompanyChart — day-window guidance', () => {
-  it('shows a guidance message when the day tab is active (no history for day window)', async () => {
-    // Set focused symbol while selectedWindow is 'day' (set in beforeEach)
+describe('FocusedCompanyChart — Today (intraday) view', () => {
+  it('renders the symbol heading on the Today (day) tab', async () => {
+    // selectedWindow is 'day' from beforeEach
     useDashboardStore.setState({ focusedSymbol: 'NVDA' })
 
     await act(async () => { renderWithSWR(<DashboardPage provider={mockProvider} />) })
 
     const spotlight = screen.getByRole('region', { name: /company spotlight/i })
-    expect(within(spotlight).getByText(/7 days/i)).toBeInTheDocument()
+    expect(within(spotlight).getAllByText('NVDA').length).toBeGreaterThan(0)
+    // Should show "Today" label, not the old guidance message
+    expect(within(spotlight).getByText(/today/i)).toBeInTheDocument()
+    expect(within(spotlight).queryByText(/select the.*7 days/i)).not.toBeInTheDocument()
+  })
+
+  it('shows an intraday chart (recharts container) on the Today tab', async () => {
+    useDashboardStore.setState({ focusedSymbol: 'NVDA' })
+
+    await act(async () => { renderWithSWR(<DashboardPage provider={mockProvider} />) })
+
+    const spotlight = screen.getByRole('region', { name: /company spotlight/i })
+    // Recharts always renders a ResponsiveContainer div even in jsdom
+    expect(spotlight.querySelector('.recharts-responsive-container')).toBeTruthy()
+  })
+
+  it('shows an ErrorNotice on the Today tab for an unknown symbol', async () => {
+    useDashboardStore.setState({ focusedSymbol: 'UNKNWN' })
+
+    const failingProvider: FinanceProvider = {
+      fetchQuote: mockProvider.fetchQuote,
+      fetchHistory: async (symbol) => {
+        throw new FinanceError(symbol, 'not_found', `No mock history for symbol "${symbol}"`)
+      },
+    }
+
+    await act(async () => { renderWithSWR(<DashboardPage provider={failingProvider} />) })
+
+    const spotlight = screen.getByRole('region', { name: /company spotlight/i })
+    expect(
+      await within(spotlight).findByText(/no mock history for symbol "UNKNWN"/i),
+    ).toBeInTheDocument()
+  })
+
+  it('falls back to the most recent session when intraday data has no T-marked symbol', async () => {
+    // Provider returns daily-style data for day window (simulates market-closed fallback)
+    const dailyFallbackProvider: FinanceProvider = {
+      fetchQuote: mockProvider.fetchQuote,
+      fetchHistory: async (symbol, window) => {
+        if (window === 'day') {
+          // Return a single daily close point (no time component)
+          return [{ date: '2024-10-07', close: 875.4 }]
+        }
+        return mockProvider.fetchHistory(symbol, window)
+      },
+    }
+    useDashboardStore.setState({ focusedSymbol: 'NVDA' })
+
+    await act(async () => { renderWithSWR(<DashboardPage provider={dailyFallbackProvider} />) })
+
+    const spotlight = screen.getByRole('region', { name: /company spotlight/i })
+    // Chart should still render without error
+    expect(within(spotlight).queryByText(/not found/i)).not.toBeInTheDocument()
+    expect(within(spotlight).getAllByText('NVDA').length).toBeGreaterThan(0)
   })
 })
 

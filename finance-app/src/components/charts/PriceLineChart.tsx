@@ -14,15 +14,17 @@ import {
   YAxis,
 } from 'recharts'
 import type { HistoryPoint } from '../../types/finance'
-import { formatPrice, formatShortDate } from '../../utils/formatters'
+import { formatPrice, formatShortDate, formatTime } from '../../utils/formatters'
 
 interface Props {
   data: HistoryPoint[]
   color: string
   symbol: string
+  /** When true the x-axis shows time of day labels instead of calendar dates. */
+  isIntraday?: boolean
 }
 
-export function PriceLineChart({ data, color, symbol }: Props) {
+export function PriceLineChart({ data, color, symbol, isIntraday = false }: Props) {
   if (data.length === 0) {
     return (
       <div
@@ -46,7 +48,7 @@ export function PriceLineChart({ data, color, symbol }: Props) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--cds-border-subtle-01, #e0e0e0)" vertical={false} />
         <XAxis
           dataKey="date"
-          tickFormatter={formatShortDate}
+          tickFormatter={isIntraday ? formatTime : formatShortDate}
           tick={{ fontSize: 11, fill: 'var(--cds-text-secondary, #525252)' }}
           tickLine={false}
           axisLine={{ stroke: 'var(--cds-border-subtle-01, #e0e0e0)' }}
@@ -62,7 +64,9 @@ export function PriceLineChart({ data, color, symbol }: Props) {
         />
         <Tooltip
           formatter={(value: unknown) => [formatPrice(value as number), symbol] as [string, string]}
-          labelFormatter={(label: unknown) => formatShortDate(String(label))}
+          labelFormatter={(label: unknown) =>
+            isIntraday ? formatTime(String(label)) : formatShortDate(String(label))
+          }
           contentStyle={{
             fontSize: 12,
             borderColor: 'var(--cds-border-subtle-01, #e0e0e0)',
