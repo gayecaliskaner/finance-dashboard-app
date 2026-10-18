@@ -28,6 +28,16 @@ export interface HistoryPoint {
   close: number
 }
 
+/**
+ * A single intraday price point.
+ * `date` is a full ISO datetime string, e.g. "2024-10-07T09:30:00".
+ */
+export interface IntradayPoint {
+  /** Full ISO datetime string, e.g. "2024-10-07T09:30:00". */
+  date: string
+  close: number
+}
+
 /** A labelled series of history points used in comparison charts. */
 export interface HistorySeries {
   symbol: string

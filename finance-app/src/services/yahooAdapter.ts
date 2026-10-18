@@ -137,6 +137,21 @@ async function fetchHistory(symbol: string, timeWindow: TimeWindow): Promise<His
       const quotes = result?.quotes ?? []
       const normalized = normalizeHistoryPoints(quotes)
 
+      // Market closed: intraday window returns no data — fall back to last 7 days of daily closes
+      if (normalized.length === 0 && timeWindow === 'day') {
+        const fallbackRes = await globalThis.fetch(
+          `/api/finance/history?symbol=${encodeURIComponent(sym)}&window=7d`,
+        )
+        if (fallbackRes.ok) {
+          const fallbackResult = await fallbackRes.json()
+          const fallbackNormalized = normalizeHistoryPoints(fallbackResult?.quotes ?? [])
+          if (fallbackNormalized.length > 0) {
+            return fallbackNormalized
+          }
+        }
+        throw new FinanceError(sym, 'parse', `No historical price data found for ${sym}`)
+      }
+
       if (normalized.length === 0) {
         throw new FinanceError(sym, 'parse', `No historical price data found for ${sym}`)
       }
@@ -153,6 +168,20 @@ async function fetchHistory(symbol: string, timeWindow: TimeWindow): Promise<His
 
     const quotes = result?.quotes ?? []
     const normalized = normalizeHistoryPoints(quotes)
+
+    // Market closed: intraday window returns no data — fall back to last 7 days of daily closes
+    if (normalized.length === 0 && timeWindow === 'day') {
+      const fallbackParams = getChartPeriod('7d')
+      const fallbackResult = await yahooFinance.chart(sym, {
+        period1: fallbackParams.period1,
+        interval: fallbackParams.interval,
+      })
+      const fallbackNormalized = normalizeHistoryPoints(fallbackResult?.quotes ?? [])
+      if (fallbackNormalized.length > 0) {
+        return fallbackNormalized
+      }
+      throw new FinanceError(sym, 'parse', `No historical price data found for ${sym}`)
+    }
 
     if (normalized.length === 0) {
       throw new FinanceError(sym, 'parse', `No historical price data found for ${sym}`)

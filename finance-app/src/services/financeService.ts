@@ -11,7 +11,7 @@
 import type { HistoryPoint, Quote, TimeWindow } from '../types/finance'
 import { FinanceError } from '../types/finance'
 import { normalizeHistoryPoints, normalizeQuote } from '../utils/normalise'
-import { MOCK_HISTORY, MOCK_QUOTES } from './mockData'
+import { MOCK_HISTORY, MOCK_INTRADAY, MOCK_QUOTES } from './mockData'
 
 // ---------------------------------------------------------------------------
 // Provider interface — any adapter must satisfy these methods.
@@ -36,8 +36,16 @@ export const mockProvider: FinanceProvider = {
     return normalizeQuote(quote, sym)
   },
 
-  async fetchHistory(symbol: string, _window: TimeWindow): Promise<HistoryPoint[]> {
+  async fetchHistory(symbol: string, window: TimeWindow): Promise<HistoryPoint[]> {
     const sym = symbol.toUpperCase()
+    if (window === 'day') {
+      // Use intraday data; fall back to most recent daily close when unavailable
+      const intraday = MOCK_INTRADAY[sym]
+      if (intraday) return normalizeHistoryPoints(intraday)
+      const daily = MOCK_HISTORY[sym]
+      if (daily) return normalizeHistoryPoints(daily)
+      throw new FinanceError(sym, 'not_found', `No mock history for symbol "${sym}"`)
+    }
     const history = MOCK_HISTORY[sym]
     if (!history) {
       throw new FinanceError(sym, 'not_found', `No mock history for symbol "${sym}"`)

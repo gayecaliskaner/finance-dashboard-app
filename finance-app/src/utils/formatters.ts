@@ -55,6 +55,27 @@ export function formatShortDate(isoDate: string): string {
   })
 }
 
+/**
+ * Format an ISO datetime string to a 12-hour time label for intraday charts.
+ * e.g. "2024-10-07T09:30:00" → "9:30 AM"
+ */
+export function formatTime(isoDatetime: string): string {
+  if (!isoDatetime) return ''
+  // Parse the time portion directly to avoid timezone conversion
+  const tIndex = isoDatetime.indexOf('T')
+  if (tIndex !== -1) {
+    const timePart = isoDatetime.slice(tIndex + 1, tIndex + 6) // "HH:MM"
+    const [hhStr, mmStr] = timePart.split(':')
+    const hh = parseInt(hhStr, 10)
+    const mm = parseInt(mmStr, 10)
+    const period = hh >= 12 ? 'PM' : 'AM'
+    const h12 = hh % 12 === 0 ? 12 : hh % 12
+    return `${h12}:${String(mm).padStart(2, '0')} ${period}`
+  }
+  // No time component (daily fallback) — show as a short date instead
+  return formatShortDate(isoDatetime)
+}
+
 // ---------------------------------------------------------------------------
 // Semantic colour & Carbon Tag helpers
 // ---------------------------------------------------------------------------

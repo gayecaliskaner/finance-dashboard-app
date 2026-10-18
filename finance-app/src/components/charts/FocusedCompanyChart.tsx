@@ -39,8 +39,9 @@ export function FocusedCompanyChart({ provider }: Props = {}) {
   // Nothing to show until a symbol is chosen
   if (!focusedSymbol) return null
 
-  const windowLabel =
-    selectedWindow === 'day' ? 'Current Day' : selectedWindow === '7d' ? 'Last 7 Days' : 'Last Quarter'
+  const isIntraday = selectedWindow === 'day'
+
+  const windowLabel = isIntraday ? 'Today' : selectedWindow === '7d' ? 'Last 7 Days' : 'Last Quarter'
 
   return (
     <Tile
@@ -111,25 +112,12 @@ export function FocusedCompanyChart({ provider }: Props = {}) {
 
       {/* Chart */}
       {!isLoading && !error && history && history.length > 0 && (
-        <PriceLineChart data={history} color={color} symbol={focusedSymbol} />
-      )}
-
-      {/* Day view note — useHistory returns null key for 'day' */}
-      {!isLoading && !error && selectedWindow === 'day' && !history && (
-        <div
-          style={{
-            height: 180,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--cds-text-secondary, #525252)',
-            fontSize: 13,
-          }}
-        >
-          Select the <strong style={{ margin: '0 4px' }}>7 Days</strong> or{' '}
-          <strong style={{ margin: '0 4px' }}>Quarter</strong> tab to see price history for{' '}
-          {focusedSymbol}.
-        </div>
+        <PriceLineChart
+          data={history}
+          color={color}
+          symbol={focusedSymbol}
+          isIntraday={isIntraday}
+        />
       )}
     </Tile>
   )

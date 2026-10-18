@@ -24,7 +24,8 @@ export function useHistory(
   provider?: FinanceProvider,
 ): HistoryState {
   const sym = symbol ? symbol.toUpperCase() : ''
-  const key = sym && window !== 'day' ? `history/${sym}/${window}` : null
+  // Always fetch for all windows — intraday data is served for 'day' window
+  const key = sym ? `history/${sym}/${window}` : null
   const { data, error, isLoading } = useSWR<HistoryPoint[], FinanceError | Error>(
     key,
     () => fetchHistory(sym, window, provider),
