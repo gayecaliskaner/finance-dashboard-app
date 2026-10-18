@@ -1,10 +1,11 @@
 /**
  * DashboardPage.tsx
  *
- * Top-level page component implementing 3 distinct financial dashboard views:
+ * Top-level page component implementing 4 distinct financial dashboard views:
  * 1. Current Day Market Summary
  * 2. Last 7 Days Trend Comparison
- * 3. Last Quarter Comparison View
+ * 3. Last Month Comparison View
+ * 4. Last Quarter Comparison View
  *
  * Built with Carbon Design System v11 components, separate Grid layouts for
  * each logical content group, responsive columns, and accessible tokens.
@@ -124,7 +125,9 @@ export function DashboardPage({ provider }: DashboardPageProps = {}) {
       ? 'Current Day'
       : selectedWindow === '7d'
         ? 'Last 7 Days'
-        : 'Last Quarter'
+        : selectedWindow === 'month'
+          ? 'Last Month'
+          : 'Last Quarter'
 
   return (
     <div style={{ paddingBottom: 48 }}>
@@ -444,7 +447,186 @@ export function DashboardPage({ provider }: DashboardPageProps = {}) {
       )}
 
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* VIEW 3: LAST QUARTER COMPARISON VIEW                              */}
+      {/* VIEW 3: LAST MONTH COMPARISON VIEW                                */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {selectedWindow === 'month' && (
+        <section aria-label="Monthly comparison">
+          {/* Logical Group 1: Monthly Performance KPI Overview Grid */}
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--cds-text-primary, #161616)', marginBottom: 12 }}>
+              Monthly Return Overview (30 Days)
+            </h2>
+            <Grid fullWidth narrow>
+              {companies.map((c) => {
+                const stats = periodStatsMap[c.symbol]
+                const isIBM = c.symbol === 'IBM'
+                return (
+                  <Column key={c.symbol} sm={4} md={4} lg={4} xlg={3} style={{ marginBottom: 16 }}>
+                    <Tile
+                      style={{
+                        borderLeft: `4px solid ${c.color}`,
+                        backgroundColor: 'var(--cds-layer-01, #ffffff)',
+                        padding: 16,
+                        height: '100%',
+                        boxShadow: isIBM ? '0 2px 6px rgba(15, 98, 254, 0.2)' : undefined,
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--cds-text-secondary, #525252)' }}>
+                          {c.symbol}
+                        </span>
+                        {stats && (
+                          <Tag type={changeTagType(stats.changePercent)} size="sm" style={{ margin: 0 }}>
+                            {stats.changePercent > 0 ? <ArrowUp size={12} /> : stats.changePercent < 0 ? <ArrowDown size={12} /> : <Subtract size={12} />}
+                            {formatPercent(stats.changePercent)}
+                          </Tag>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--cds-text-primary, #161616)', marginBottom: 6 }}>
+                        {c.name}
+                      </div>
+                      {stats ? (
+                        <div>
+                          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--cds-text-primary, #161616)', marginBottom: 2 }}>
+                            {formatPrice(stats.end)}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--cds-text-helper, #6f6f6f)' }}>
+                            Month Range: {formatPrice(stats.min)} - {formatPrice(stats.max)}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 12, color: 'var(--cds-text-secondary, #525252)' }}>Loading monthly data…</div>
+                      )}
+                    </Tile>
+                  </Column>
+                )
+              })}
+            </Grid>
+          </div>
+
+          {/* Logical Group 2: Monthly Comparison Chart Grid */}
+          {historySeries.length > 0 && (
+            <div style={{ marginBottom: 32 }}>
+              <Grid fullWidth narrow>
+                <Column sm={4} md={8} lg={12}>
+                  <ComparisonAreaChart
+                    series={historySeries}
+                    companies={companies}
+                    title="Monthly Relative Performance (Base 100)"
+                    description="Relative performance trajectories indexed to 100 at the start of the 30-day period"
+                  />
+                </Column>
+              </Grid>
+            </div>
+          )}
+
+          {/* Logical Group 3: Monthly Breakdown Table Grid */}
+          <div>
+            <Grid fullWidth narrow>
+              <Column sm={4} md={8} lg={12}>
+                <TableContainer
+                  title="Monthly Financial Metrics Breakdown"
+                  description="Detailed opening, range, and total month return comparisons across IBM and peers"
+                  style={{
+                    backgroundColor: 'var(--cds-layer-01, #ffffff)',
+                    border: '1px solid var(--cds-border-subtle-01, #e0e0e0)',
+                    borderRadius: 4,
+                  }}
+                >
+                  <Table aria-label="Monthly breakdown table" size="lg">
+                    <TableHead>
+                      <TableRow>
+                        <TableHeader>Company</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Month Open</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Month High</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Month Low</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Current Price</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Month Return ($)</TableHeader>
+                        <TableHeader style={{ textAlign: 'right' }}>Month Return (%)</TableHeader>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {companies.map((c) => {
+                        const stats = periodStatsMap[c.symbol]
+                        const isIBM = c.symbol === 'IBM'
+                        return (
+                          <TableRow
+                            key={c.symbol}
+                            style={{
+                              backgroundColor: isIBM ? 'rgba(15, 98, 254, 0.04)' : undefined,
+                              fontWeight: isIBM ? 600 : 400,
+                            }}
+                          >
+                            <TableCell>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span
+                                  style={{
+                                    fontWeight: 700,
+                                    color: isIBM ? 'var(--cds-link-primary, #0f62fe)' : 'var(--cds-text-primary, #161616)',
+                                  }}
+                                >
+                                  {c.symbol}
+                                </span>
+                                <span style={{ color: 'var(--cds-text-secondary, #525252)' }}>{c.name}</span>
+                                {isIBM && (
+                                  <Tag type="blue" size="sm" style={{ margin: 0 }}>
+                                    IBM
+                                  </Tag>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                              {stats ? formatPrice(stats.start) : '—'}
+                            </TableCell>
+                            <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                              {stats ? formatPrice(stats.max) : '—'}
+                            </TableCell>
+                            <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                              {stats ? formatPrice(stats.min) : '—'}
+                            </TableCell>
+                            <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                              {stats ? formatPrice(stats.end) : '—'}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                textAlign: 'right',
+                                color: stats ? changeColor(stats.change) : undefined,
+                                fontVariantNumeric: 'tabular-nums',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {stats ? formatChange(stats.change) : '—'}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                textAlign: 'right',
+                                color: stats ? changeColor(stats.changePercent) : undefined,
+                                fontVariantNumeric: 'tabular-nums',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {stats ? (
+                                <Tag type={changeTagType(stats.changePercent)} size="sm" style={{ margin: 0 }}>
+                                  {formatPercent(stats.changePercent)}
+                                </Tag>
+                              ) : (
+                                '—'
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Column>
+            </Grid>
+          </div>
+        </section>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* VIEW 4: LAST QUARTER COMPARISON VIEW                              */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       {selectedWindow === 'quarter' && (
         <section aria-label="Quarterly comparison">

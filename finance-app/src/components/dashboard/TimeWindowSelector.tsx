@@ -1,9 +1,10 @@
 /**
  * TimeWindowSelector.tsx
  *
- * Tab bar for switching between the three dashboard views:
+ * Tab bar for switching between the dashboard views:
  * - Current Day Market Summary
  * - Last 7 Days Trend Comparison
+ * - Last Month Comparison View
  * - Last Quarter Comparison View
  *
  * Built with Carbon Design System components and styling tokens.
@@ -17,7 +18,8 @@ import { useDashboardStore } from '../../store/dashboardStore'
 const WINDOW_CONFIG: { value: TimeWindow; label: string; icon: typeof Dashboard; index: number }[] = [
   { value: 'day', label: 'Today', icon: Dashboard, index: 0 },
   { value: '7d', label: 'Last 7 Days', icon: ChartLine, index: 1 },
-  { value: 'quarter', label: 'Last Quarter', icon: Calendar, index: 2 },
+  { value: 'month', label: 'Last Month', icon: Calendar, index: 2 },
+  { value: 'quarter', label: 'Last Quarter', icon: Calendar, index: 3 },
 ]
 
 export function TimeWindowSelector() {

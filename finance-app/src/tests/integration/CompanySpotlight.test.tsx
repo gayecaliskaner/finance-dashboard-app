@@ -75,6 +75,17 @@ describe('FocusedCompanyChart — success path', () => {
     // No error notice inside spotlight section
     expect(within(spotlight).queryByText(/not found/i)).not.toBeInTheDocument()
   })
+
+  it('renders the symbol heading and chart for month window', async () => {
+    useDashboardStore.setState({ selectedWindow: 'month', focusedSymbol: 'AMZN' })
+
+    await act(async () => { renderWithSWR(<DashboardPage provider={mockProvider} />) })
+
+    const spotlight = screen.getByRole('region', { name: /company spotlight/i })
+    expect(within(spotlight).getAllByText('AMZN').length).toBeGreaterThan(0)
+    expect(within(spotlight).getByText(/last month/i)).toBeInTheDocument()
+    expect(within(spotlight).queryByText(/not found/i)).not.toBeInTheDocument()
+  })
 })
 
 describe('FocusedCompanyChart — error path', () => {

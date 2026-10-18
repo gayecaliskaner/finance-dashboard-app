@@ -40,7 +40,13 @@ export function FocusedCompanyChart({ provider }: Props = {}) {
   if (!focusedSymbol) return null
 
   const windowLabel =
-    selectedWindow === 'day' ? 'Current Day' : selectedWindow === '7d' ? 'Last 7 Days' : 'Last Quarter'
+    selectedWindow === 'day'
+      ? 'Current Day'
+      : selectedWindow === '7d'
+        ? 'Last 7 Days'
+        : selectedWindow === 'month'
+          ? 'Last Month'
+          : 'Last Quarter'
 
   return (
     <Tile
@@ -126,7 +132,8 @@ export function FocusedCompanyChart({ provider }: Props = {}) {
             fontSize: 13,
           }}
         >
-          Select the <strong style={{ margin: '0 4px' }}>7 Days</strong> or{' '}
+          Select the <strong style={{ margin: '0 4px' }}>7 Days</strong>,{' '}
+          <strong style={{ margin: '0 4px' }}>Last Month</strong>, or{' '}
           <strong style={{ margin: '0 4px' }}>Quarter</strong> tab to see price history for{' '}
           {focusedSymbol}.
         </div>

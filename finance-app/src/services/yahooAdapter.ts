@@ -37,6 +37,12 @@ function getChartPeriod(timeWindow: TimeWindow) {
       interval: '5m' as const,
     }
   }
+  if (timeWindow === 'month') {
+    return {
+      period1: new Date(now - 30 * 24 * 60 * 60 * 1000),
+      interval: '1d' as const,
+    }
+  }
   if (timeWindow === 'quarter') {
     return {
       period1: new Date(now - 90 * 24 * 60 * 60 * 1000),

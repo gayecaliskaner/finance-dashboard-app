@@ -64,10 +64,12 @@ describe('fetchHistory (mock provider)', () => {
     expect(history[0]).toHaveProperty('close')
   })
 
-  it('returns the same data for all time windows (mock is window-agnostic)', async () => {
-    const h7d = await service.fetchHistory('IBM', '7d')
-    const hQ  = await service.fetchHistory('IBM', 'quarter')
-    expect(h7d).toEqual(hQ)
+  it('returns 30 days of daily history for month window', async () => {
+    const history = await service.fetchHistory('IBM', 'month')
+    expect(Array.isArray(history)).toBe(true)
+    expect(history).toHaveLength(30)
+    expect(history[0]).toHaveProperty('date')
+    expect(history[0]).toHaveProperty('close')
   })
 
   it('throws FinanceError for an unknown symbol', async () => {
@@ -80,6 +82,12 @@ describe('fetchHistory (mock provider)', () => {
     expect(multi.MSFT).toBeDefined()
     expect(multi.ORCL).toBeDefined()
     expect(multi.IBM.length).toBeGreaterThan(0)
+  })
+
+  it('supports fetchMultiHistory for month window', async () => {
+    const multi = await service.fetchMultiHistory(['IBM', 'MSFT'], 'month')
+    expect(multi.IBM).toHaveLength(30)
+    expect(multi.MSFT).toHaveLength(30)
   })
 })
 
