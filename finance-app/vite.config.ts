@@ -98,12 +98,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/tests/setup.ts'],
-    pool: 'vmThreads',
-    server: {
-      deps: {
-        inline: [/^@carbon\//, /^temporal-polyfill/],
-      },
-    },
+    pool: 'forks',
     typecheck: {
       tsconfig: './tsconfig.test.json',
     },
