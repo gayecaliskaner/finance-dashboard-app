@@ -99,8 +99,10 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/tests/setup.ts'],
     pool: 'vmThreads',
-    deps: {
-      inline: ['@carbon/utilities', 'temporal-polyfill'],
+    server: {
+      deps: {
+        inline: [/^@carbon\//, /^temporal-polyfill/],
+      },
     },
     typecheck: {
       tsconfig: './tsconfig.test.json',
