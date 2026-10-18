@@ -102,6 +102,15 @@ export const MOCK_QUOTES: Record<string, Quote> = {
     changePercent: 1.88,
     updatedAt: '2024-10-07T15:30:00Z',
   },
+  NVDA: {
+    symbol: 'NVDA',
+    name: 'NVIDIA Corporation',
+    price: 875.4,
+    previousClose: 862.0,
+    change: 13.4,
+    changePercent: 1.55,
+    updatedAt: '2024-10-07T15:30:00Z',
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -208,6 +217,16 @@ const hpeHistory: HistoryPoint[] = [
   { date: '2024-10-07', close: 18.95 },
 ]
 
+const nvdaHistory: HistoryPoint[] = [
+  { date: '2024-09-27', close: 820.0 },
+  { date: '2024-09-30', close: 835.5 },
+  { date: '2024-10-01', close: 848.0 },
+  { date: '2024-10-02', close: 855.2 },
+  { date: '2024-10-03', close: 860.0 },
+  { date: '2024-10-04', close: 862.0 },
+  { date: '2024-10-07', close: 875.4 },
+]
+
 export const MOCK_HISTORY: Record<string, HistoryPoint[]> = {
   IBM: ibmHistory,
   MSFT: msftHistory,
@@ -219,4 +238,5 @@ export const MOCK_HISTORY: Record<string, HistoryPoint[]> = {
   CSCO: cscoHistory,
   ACN: acnHistory,
   HPE: hpeHistory,
+  NVDA: nvdaHistory,
 }

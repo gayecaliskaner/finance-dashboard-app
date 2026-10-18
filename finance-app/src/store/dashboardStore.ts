@@ -62,9 +62,11 @@ interface DashboardState {
   selectedWindow: TimeWindow
   companies: Company[]
   dataSource: DataSource
+  focusedSymbol: string | null
   setWindow: (window: TimeWindow) => void
   setCompanies: (companies: Company[]) => void
   setDataSource: (source: DataSource) => void
+  setFocusedSymbol: (symbol: string | null) => void
   addCompany: (company: Company) => void
   removeCompany: (symbol: string) => void
   resetCompanies: () => void
@@ -74,9 +76,12 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   selectedWindow: 'day',
   companies: DEFAULT_COMPANIES,
   dataSource: isTestEnv ? 'mock' : 'live',
+  focusedSymbol: null,
   setWindow: (window) => set({ selectedWindow: window }),
   setCompanies: (companies) => set({ companies }),
   setDataSource: (dataSource) => set({ dataSource }),
+  setFocusedSymbol: (symbol) =>
+    set({ focusedSymbol: symbol ? symbol.trim().toUpperCase() : null }),
   addCompany: (company) =>
     set((state) => {
       const upper = company.symbol.toUpperCase()

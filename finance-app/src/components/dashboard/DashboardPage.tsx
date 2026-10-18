@@ -38,6 +38,8 @@ import {
 import { RankingTable } from '../cards/RankingTable'
 import { PriceLineChart } from '../charts/PriceLineChart'
 import { ComparisonAreaChart } from '../charts/ComparisonAreaChart'
+import { FocusedCompanyChart } from '../charts/FocusedCompanyChart'
+import { CompanySearchPanel } from './CompanySearchPanel'
 import type { HistorySeries } from '../../types/finance'
 import { type FinanceProvider, mockProvider } from '../../services/financeService'
 import { calculatePeriodStats } from '../../utils/normalise'
@@ -619,6 +621,35 @@ export function DashboardPage({ provider }: DashboardPageProps = {}) {
           </div>
         </section>
       )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* COMPANY SPOTLIGHT — user-selected symbol                          */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <section aria-label="Company spotlight" style={{ marginTop: 40 }}>
+        <div style={{ marginBottom: 16 }}>
+          <h2
+            style={{
+              fontSize: 16,
+              fontWeight: 600,
+              color: 'var(--cds-text-primary, #161616)',
+              marginBottom: 4,
+            }}
+          >
+            Company Spotlight
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--cds-text-secondary, #525252)', margin: 0 }}>
+            Enter any ticker symbol to view its price history alongside the active time window.
+          </p>
+        </div>
+        <Grid fullWidth narrow>
+          <Column sm={4} md={8} lg={12} style={{ marginBottom: 8 }}>
+            <CompanySearchPanel />
+          </Column>
+          <Column sm={4} md={8} lg={12}>
+            <FocusedCompanyChart provider={provider} />
+          </Column>
+        </Grid>
+      </section>
     </div>
   )
 }
